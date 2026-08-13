@@ -20,12 +20,15 @@ res.send( 'Resolved ${host} -> ${address}';
 });
   
 // insecure: allows all origins
-app.use(cors());
+app.use(cors({ origin: "https://labdeploy-webapp-vinh.azurewebsites.net"}));
 
 // insecure: uses a default password if env var missing
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 app.get('/admin', (req, res) => {
+  if (!process.env.ADMIN_PASSWORD) {
+    return res.status(500).send("Admin password missing - please configure ADMIN_PASSWORD");
+  }
   const pw = req.query.pw;
   if (pw === ADMIN_PASSWORD) {
     res.send('Welcome admin');
@@ -36,7 +39,7 @@ app.get('/admin', (req, res) => {
 
 // verbose error (debug) enabled in production
 app.get('/', (req, res) => {
-  throw new Error('detailed error info: stack trace...');
+res.send('App is running securely');
 });
 
 app.listen(process.env.PORT || 8080);
